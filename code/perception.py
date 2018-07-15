@@ -18,48 +18,26 @@ def color_thresh(img, rgb_thresh=(160, 160, 160)):
     return color_select
 
 
-def color_thresh_navigable(img, rgb_thresh=(160, 160, 160)):
-    # Create an array of zeros same xy size as img, but single channel
+def color_thresh_navigable(img):
     color_select = np.zeros_like(img[:,:,0])
-    # Require that each pixel be above all three threshold values in RGB
-    # above_thresh will now contain a boolean array with "True"
-    # where threshold was met
-    above_thresh = (img[:,:,0] > rgb_thresh[0]) \
-                & (img[:,:,1] > rgb_thresh[1]) \
-                & (img[:,:,2] > rgb_thresh[2])
-    # Index the array of zeros with the boolean array and set to 1
-    color_select[above_thresh] = 1
-    # Return the binary image
+    ok = (img[:,:,0] > 160) & (img[:,:,1] > 160) & (img[:,:,2] > 160)
+    color_select[ok] = 1
     return color_select
 
 
-def color_thresh_obstacles(img, rgb_thresh=(160, 160, 160)):
-    # Create an array of zeros same xy size as img, but single channel
+def color_thresh_obstacles(img):
     color_select = np.zeros_like(img[:,:,0])
-    # Require that each pixel be above all three threshold values in RGB
-    # above_thresh will now contain a boolean array with "True"
-    # where threshold was met
-    below_thresh = (img[:,:,0] <= rgb_thresh[0]) \
-                & (img[:,:,1] <= rgb_thresh[1]) \
-                & (img[:,:,2] <= rgb_thresh[2])
-    # Index the array of zeros with the boolean array and set to 1
-    color_select[below_thresh] = 1
-    # Return the binary image
+    ok = ((img[:,:,0] <= 160) | (img[:,:,1] <= 160)) & (img[:,:,2] > 160)
+    ok = ok | ((img[:,:,2] <= 160) & (img[:,:,2] > 50))
+    ok = ok | (((img[:,:,0] <= 100) | (img[:,:,1] <= 100)) & (img[:,:,2] <= 50))
+    color_select[ok] = 1
     return color_select
 
 
-def color_thresh_rock_samp(img, rgb_thresh=(160, 160, 160)):
-    # Create an array of zeros same xy size as img, but single channel
+def color_thresh_rock_samp(img):
     color_select = np.zeros_like(img[:,:,0])
-    # Require that each pixel be above all three threshold values in RGB
-    # above_thresh will now contain a boolean array with "True"
-    # where threshold was met
-    between_thresh = (img[:,:,0] > rgb_thresh[0]) \
-                & (img[:,:,1] > rgb_thresh[1]) \
-                & (img[:,:,2] <= rgb_thresh[2])
-    # Index the array of zeros with the boolean array and set to 1
-    color_select[between_thresh] = 1
-    # Return the binary image
+    ok = (img[:,:,0] > 100) & (img[:,:,1] > 100) & (img[:,:,2] <= 50)
+    color_select[ok] = 1
     return color_select
 
 
@@ -132,7 +110,7 @@ def perception_step(Rover):
     # 1) Define source and destination points for perspective transform
     dst_size = 5
     bottom_offset = 6
-    source = np.float32([[14, 140], [301 ,140],[200, 96], [118, 96]])
+    source = np.float32([[14, 140], [301, 140], [200, 96], [118, 96]])
     destination = np.float32([
         [Rover.img.shape[1]/2 - dst_size, Rover.img.shape[0] - bottom_offset],
         [Rover.img.shape[1]/2 + dst_size, Rover.img.shape[0] - bottom_offset],
@@ -142,9 +120,9 @@ def perception_step(Rover):
     # 2) Apply perspective transform
     warped = perspect_transform(Rover.img, source, destination)
     # 3) Apply color threshold to identify navigable terrain/obstacles/rock samples
-    threshed_navigable = color_thresh_navigable(warped, rgb_thresh=(160, 160, 160))
-    threshed_obstacles = color_thresh_obstacles(warped, rgb_thresh=(160, 160, 160))
-    threshed_rock_samp = color_thresh_rock_samp(warped, rgb_thresh=(160, 160, 160))
+    threshed_navigable = color_thresh_navigable(warped)
+    threshed_obstacles = color_thresh_obstacles(warped)
+    threshed_rock_samp = color_thresh_rock_samp(warped)
     # 4) Update Rover.vision_image (this will be displayed on left side of screen)
         # Example: Rover.vision_image[:,:,0] = obstacle color-thresholded binary image
         #          Rover.vision_image[:,:,1] = rock_sample color-thresholded binary image
