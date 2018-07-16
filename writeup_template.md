@@ -3,7 +3,9 @@
 ---
 
 **resolution=1024 x 768**
+
 **Graphics quality=Good**
+
 **FPS=18**
 
  + I populated the `perception_step` function in `perception.py` with color thresholds and visual output of color thresholds and world map output.
