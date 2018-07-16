@@ -30,22 +30,6 @@
 ### Here I will consider the rubric points individually and describe how I addressed each point in my implementation.  
 
 ---
-### Writeup / README
-
-#### 1. Provide a Writeup / README that includes all the rubric points and how you addressed each one.  You can submit your writeup as markdown or pdf.  
-
-You're reading it!
-
-### Notebook Analysis
-#### 1. Run the functions provided in the notebook on test images (first with the test data provided, next on data you have recorded). Add/modify functions to allow for color selection of obstacles and rock samples.
-Here is an example of how to include an image in your writeup.
-
-![alt text][image1]
-
-#### 1. Populate the `process_image()` function with the appropriate analysis steps to map pixels identifying navigable terrain, obstacles and rock samples into a worldmap.  Run `process_image()` on your test data using the `moviepy` functions provided to create video output of your result. 
-And another! 
-
-![alt text][image2]
 ### Autonomous Navigation and Mapping
 
 #### 1. Fill in the `perception_step()` (at the bottom of the `perception.py` script) and `decision_step()` (in `decision.py`) functions in the autonomous mapping scripts and an explanation is provided in the writeup of how and why these functions were modified as they were.
@@ -57,8 +41,9 @@ And another!
 
 Here I'll talk about the approach I took, what techniques I used, what worked and why, where the pipeline might fail and how I might improve it if I were going to pursue this project further.  
 
-
-
-![alt text][image3]
+ + I populated the `perception_step` function in `perception.py` with color thresholds and visual output of color thresholds and world map output.
+ + To decrease the time to explore the area (and find the rock samples), I doubled the `throttle_set` and increased `max_vel` to 3. However, to prevent rollovers around the walls, I also increased the `stop_forward` threshold to 300 in order to stop earlier when there is not enough navigable space in front of rover.
+ + To increase map fidelity, I do not update the world map when rover's pitch or roll exceed 1 degree from zero. 
+ + To reduce re-visiting the same places, when computing the steering angle by averaging navigable angles, I use higher weights for the new pixels and lower weight for pixels that existed in the map. So converting the unweighted averaging to a weighted averaging of angles to compute the steering.
 
 
